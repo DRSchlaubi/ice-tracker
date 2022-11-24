@@ -14,4 +14,11 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "ICETracker"
-include(":app", ":ice-portal-models", ":ice-portal-routes", ":test-server")
+include(
+    ":app",
+    ":ice-portal-models",
+    ":ice-portal-routes",
+    ":ice-portal-client",
+    ":ice-portal-fetcher",
+    ":test-server"
+)

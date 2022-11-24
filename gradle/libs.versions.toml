@@ -1,5 +1,5 @@
 [versions]
-kotlin = "1.7.21"
+kotlin = "1.7.10"
 compose = "1.3.1"
 ktor = "2.1.3"
 
@@ -11,13 +11,18 @@ androidx-activity = { module = "androidx.activity:activity-compose", version = "
 androidx-compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 androidx-compose-ui-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 androidx-compose-material3 = { module = "androidx.compose.material3:material3", version = "1.1.0-alpha02" }
-
+androidx-compose-icons = { module = "androidx.compose.material:material-icons-extended", version.ref = "compose" }
 
 androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "compose" }
 
+# Cannot use 3.x as Android fails to desugar records
+jpx = { module = "io.jenetics:jpx", version = "2.0.0" }
+stax = { module = "stax:stax", version = "1.2.0" }
+
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.4.1" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.4.0" }
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version = "1.6.4" }
 
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
@@ -25,12 +30,18 @@ ktor-server-content-negotioation = { module = "io.ktor:ktor-server-content-negot
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-resources = { module = "io.ktor:ktor-resources", version.ref = "ktor" }
 ktor-server-resources = { module = "io.ktor:ktor-server-resources", version.ref = "ktor" }
+
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-resources = { module = "io.ktor:ktor-client-resources", version.ref = "ktor" }
 
+client-common = { module = "dev.schlaubi:client-common", version = "1.0-SNAPSHOT" }
+
+kotlin-logging = { module = "io.github.microutils:kotlin-logging-jvm", version = "3.0.2" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version = "2.0.4" }
 
 [plugins]
-android = { id = "com.android.application", version = "7.2.0" }
+android = { id = "com.android.application", version = "7.3.1" }
 kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-mpp = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

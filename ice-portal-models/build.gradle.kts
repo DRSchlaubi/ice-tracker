@@ -1,6 +1,6 @@
 plugins {
-    alias(libs.plugins.kotlin.mpp)
-    alias(libs.plugins.kotlin.serialization)
+    kotlin("multiplatform")
+    kotlin("plugin.serialization")
 }
 
 kotlin {

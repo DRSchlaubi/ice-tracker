@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">ICETracker</string>
+    <string name="app_name" translatable="false">ICETracker</string>
+    <string name="add_journey">Add journey</string>
+    <string name="building_series">Building Series</string>
+    <string name="manage_journey">Manage journey</string>
+    <string name="train_line">Train line</string>
+    <string name="journey_date">Journey Date</string>
+    <string name="convert_to_gpx">Convert Journey to GPX</string>
 </resources>

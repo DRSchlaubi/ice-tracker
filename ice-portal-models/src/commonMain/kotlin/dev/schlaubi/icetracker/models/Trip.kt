@@ -16,10 +16,32 @@ public data class TripInfo(
 
 @Serializable
 public data class Trip(
-    val tripDate: LocalDate,
+    val tripDate: DBLocalDate,
     val trainType: String,
     @SerialName("vzn") val number: String,
     val actualPosition: Int,
     val distanceFromLastStop: Int,
-    val totalDistance: Int
-)
+    val totalDistance: Int,
+    val stopInfo: StopInfo,
+    val stops: List<Stop>
+) {
+    @Serializable
+    public data class StopInfo(
+        val scheduledNext: String,
+        val actualNext: String,
+        val actualLast: String
+    )
+
+    @Serializable
+    public data class Stop(val station: Station)
+
+    @Serializable
+    public data class Station(
+        @SerialName("evaNr") val eva: String,
+        val name: String,
+        @SerialName("geocoordinates") val geoCoordinates: GeoCoordinates
+    )
+}
+
+@Serializable
+public data class GeoCoordinates(val latitude: Double, val longitude: Double)
