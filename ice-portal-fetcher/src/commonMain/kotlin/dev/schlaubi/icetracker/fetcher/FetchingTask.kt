@@ -4,6 +4,7 @@ import dev.schlaubi.icetracker.client.ICEPortalClient
 import dev.schlaubi.icetracker.models.TrainStatus
 import dev.schlaubi.icetracker.models.Trip
 import dev.schlaubi.icetracker.models.TripInfo
+import io.ktor.util.*
 import kotlinx.coroutines.*
 import kotlinx.datetime.Clock
 import mu.KotlinLogging
@@ -60,6 +61,7 @@ public class FetchingTask(
         return Journey(
             latestTripInfo.trip.number,
             latestTripInfo.trip.number,
+            generateNonce(),
             Journey.TrainInfo(
                 latestStatus.trainType,
                 latestStatus.series,

@@ -40,6 +40,8 @@ client-common = { module = "dev.schlaubi:client-common", version = "1.0-SNAPSHOT
 kotlin-logging = { module = "io.github.microutils:kotlin-logging-jvm", version = "3.0.2" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version = "2.0.4" }
 
+google-oss-licenses = { module = "com.google.android.gms:play-services-oss-licenses", version = "17.0.0" }
+
 [plugins]
 android = { id = "com.android.application", version = "7.3.1" }
 kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

@@ -1,29 +1,38 @@
 package dev.schlaubi.icetracker
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import dev.schlaubi.icetracker.fetcher.Journey
-import dev.schlaubi.icetracker.ui.JourneyCard
+import dev.schlaubi.icetracker.ui.JourneyList
 import dev.schlaubi.icetracker.ui.theme.ICETrackerTheme
 import kotlinx.datetime.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        System.setProperty("android.javax.xml.stream.XMLInputFactory", "com.sun.xml.stream.ZephyrParserFactory");
-        System.setProperty("android.javax.xml.stream.XMLOutputFactory", "com.sun.xml.stream.ZephyrWriterFactory");
-        System.setProperty("android.javax.xml.stream.XMLEventFactory", "com.sun.xml.stream.events.ZephyrEventFactory");
+        System.setProperty(
+            "android.javax.xml.stream.XMLInputFactory",
+            "com.sun.xml.stream.ZephyrParserFactory"
+        );
+        System.setProperty(
+            "android.javax.xml.stream.XMLOutputFactory",
+            "com.sun.xml.stream.ZephyrWriterFactory"
+        );
+        System.setProperty(
+            "android.javax.xml.stream.XMLEventFactory",
+            "com.sun.xml.stream.events.ZephyrEventFactory"
+        );
         setContent {
             ICETrackerTheme {
                 App()
@@ -53,19 +62,35 @@ fun App() {
                 IconButton(onClick = { /*TODO*/ }) {
                     Icon(imageVector = Icons.Filled.Add, stringResource(R.string.add_journey))
                 }
+                ActionDropDown()
             }
         )
     }, containerColor = MaterialTheme.colorScheme.primaryContainer) { padding ->
         Row(Modifier.padding(padding)) {
-            Column(
-                Modifier
-                    .padding(vertical = 15.dp, horizontal = 5.dp)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                defaultJourneys().forEach { journey ->
-                    JourneyCard(journey)
-                }
-            }
+            JourneyList()
         }
+    }
+}
+
+@Composable
+private fun ActionDropDown() {
+    var expanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    IconButton(onClick = { expanded = true }) {
+        Icon(
+            imageVector = Icons.Filled.MoreVert,
+            contentDescription = stringResource(R.string.options)
+        )
+    }
+    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        DropdownMenuItem(text = { Text(stringResource(R.string.import_item)) }, onClick = {
+            expanded = false
+        })
+
+        DropdownMenuItem(text = { Text(stringResource(R.string.open_source_licenses)) }, onClick = {
+            expanded = false
+
+            context.startActivity(Intent(context, OssLicensesMenuActivity::class.java))
+        })
     }
 }

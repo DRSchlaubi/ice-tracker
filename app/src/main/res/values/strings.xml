@@ -6,4 +6,16 @@
     <string name="train_line">Train line</string>
     <string name="journey_date">Journey Date</string>
     <string name="convert_to_gpx">Convert Journey to GPX</string>
+    <string name="options">Options</string>
+    <string name="import_item">Import</string>
+    <string name="abort">Abort</string>
+    <string name="delete">Delete</string>
+    <string name="delete_title">Delete journey</string>
+    <string name="delete_description">Are you sure you want to delete \"%1$s\". This action cannot be undone</string>
+    <string name="add_default_journey">Add default Journey</string>
+    <string name="rename_journey">Rename</string>
+    <string name="rename_journey_title">Rename Journey</string>
+    <string name="rename_journey_description">Please enter the new name for \"%1$s\"</string>
+    <string name="new_name">New name</string>
+    <string name="open_source_licenses">Open Source Licenses</string>
 </resources>

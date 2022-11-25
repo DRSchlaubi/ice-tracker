@@ -2,15 +2,10 @@ package dev.schlaubi.icetracker.ui
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.os.MemoryFile
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Event
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Route
-import androidx.compose.material.icons.filled.Train
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -22,22 +17,37 @@ import androidx.core.content.FileProvider
 import dev.schlaubi.icetracker.R
 import dev.schlaubi.icetracker.fetcher.Journey
 import dev.schlaubi.icetracker.fetcher.toGPX
+import dev.schlaubi.icetracker.ui.journey.DeleteJourneyDialog
+import dev.schlaubi.icetracker.ui.journey.RenameJourneyDialog
 import io.jenetics.jpx.GPX
-import io.ktor.util.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToStream
 import java.nio.file.Files
+import java.nio.file.Path
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import kotlin.io.path.Path
-import kotlin.io.path.div
+import kotlin.io.path.deleteIfExists
+import kotlin.io.path.outputStream
 
 
+@OptIn(ExperimentalSerializationApi::class)
 @Composable
-fun JourneyCard(journey: Journey) {
-    var modifyExpanded by remember { mutableStateOf(false) }
-    val context = LocalContext.current
+fun JourneyCard(journey: Journey, file: Path, deleteFromList: (id: String) -> Unit) {
+    var name by remember { mutableStateOf(journey.name) }
+    val deleteAlertPresent = remember { mutableStateOf(false) }
+    val renameDialogPresent = remember { mutableStateOf(false) }
+
+    fun updateName(newName: String) {
+        Json.encodeToStream(journey.copy(name = newName), file.outputStream())
+        name = newName
+    }
+
     ElevatedCard(
         modifier = Modifier
             .wrapContentHeight()
@@ -55,38 +65,15 @@ fun JourneyCard(journey: Journey) {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        journey.name,
+                        name,
                         style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.padding(5.dp)
+                        modifier = Modifier.padding(5.dp).fillMaxWidth(fraction = .9f)
                     )
                     Spacer(Modifier.weight(1f))
-                    Column {
-                        IconButton(onClick = { modifyExpanded = true }) {
-                            Icon(
-                                imageVector = Icons.Filled.MoreVert,
-                                contentDescription = stringResource(
-                                    id = R.string.manage_journey
-                                )
-                            )
-                        }
-                        DropdownMenu(
-                            expanded = modifyExpanded,
-                            onDismissRequest = { modifyExpanded = false }) {
-                            DropdownMenuItem(
-                                text = { Text(text = "Rename") },
-                                onClick = { /*TODO*/ })
-                            DropdownMenuItem(
-                                text = { Text(text = "Delete") },
-                                onClick = { /*TODO*/ })
-                            DropdownMenuItem(text = { Text(text = "Generate GPX") }, onClick = {
-                                context.convertToGpx(journey)
-                            })
-                        }
-                    }
+                    JourneyDropDown(journey, deleteAlertPresent, renameDialogPresent)
                 }
                 Row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()
                 ) {
                     JourneyDetail(
                         Icons.Filled.Train,
@@ -98,11 +85,9 @@ fun JourneyCard(journey: Journey) {
                         R.string.train_line,
                         "${journey.trainInfo.type} ${journey.number}"
                     )
-                    val date = journey.createdAt.toLocalDateTime(TimeZone.UTC)
-                        .toJavaLocalDateTime()
+                    val date = journey.createdAt.toLocalDateTime(TimeZone.UTC).toJavaLocalDateTime()
                     val formattedDate =
-                        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                            .format(date)
+                        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(date)
 
                     JourneyDetail(
                         icon = Icons.Filled.Event,
@@ -112,6 +97,43 @@ fun JourneyCard(journey: Journey) {
                 }
             }
         }
+
+        DeleteJourneyDialog(deleteAlertPresent, file, deleteFromList, journey, name)
+        RenameJourneyDialog(renameDialogPresent, name, ::updateName)
+    }
+}
+
+@Composable
+private fun JourneyDropDown(
+    journey: Journey,
+    deleteAlertPresent: MutableState<Boolean>,
+    renameDialogPresent: MutableState<Boolean>
+) {
+    var modifyExpanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    Column {
+        IconButton(onClick = { modifyExpanded = true }) {
+            Icon(
+                imageVector = Icons.Filled.MoreVert, contentDescription = stringResource(
+                    id = R.string.manage_journey
+                )
+            )
+        }
+        DropdownMenu(expanded = modifyExpanded, onDismissRequest = { modifyExpanded = false }) {
+            DropdownMenuItem(text = { Text(text = "Rename") }, onClick = {
+                modifyExpanded = false
+                renameDialogPresent.value = true
+            })
+            DropdownMenuItem(text = { Text(text = "Delete") }, onClick = {
+                modifyExpanded = false
+                deleteAlertPresent.value = true
+            })
+            DropdownMenuItem(text = { Text(text = "Generate GPX") }, onClick = {
+                modifyExpanded = false
+                context.convertToGpx(journey)
+            })
+        }
     }
 }
 
@@ -119,8 +141,7 @@ fun JourneyCard(journey: Journey) {
 private fun JourneyDetail(icon: ImageVector, @StringRes description: Int, text: String) {
     Row(Modifier.padding(horizontal = 3.dp)) {
         Icon(
-            imageVector = icon,
-            contentDescription = stringResource(
+            imageVector = icon, contentDescription = stringResource(
                 id = description
             )
         )
@@ -136,9 +157,7 @@ private fun Context.convertToGpx(journey: Journey) {
     val shareIntent = Intent(Intent.ACTION_SEND).apply {
         type = "application/gpx+xml"
         val file = FileProvider.getUriForFile(
-            this@convertToGpx,
-            applicationContext.packageName + ".provider",
-            tempFile.toFile()
+            this@convertToGpx, applicationContext.packageName + ".provider", tempFile.toFile()
         )
 
         putExtra(Intent.EXTRA_STREAM, file)

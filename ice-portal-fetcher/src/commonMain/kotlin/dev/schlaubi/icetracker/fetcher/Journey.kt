@@ -7,6 +7,7 @@ import kotlinx.datetime.Instant
 @Serializable
 public data class Journey(
     val name: String,
+    val id: String,
     val number: String,
     val trainInfo: TrainInfo,
     val stations: List<Trip.Station>,
