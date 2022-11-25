@@ -12,7 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.schlaubi.icetracker.R
-import dev.schlaubi.icetracker.defaultJourneys
+import dev.schlaubi.icetracker.util.defaultJourneys
 import dev.schlaubi.icetracker.fetcher.Journey
 import dev.schlaubi.icetracker.service.TrackerService
 import dev.schlaubi.icetracker.service.TrackingServiceState

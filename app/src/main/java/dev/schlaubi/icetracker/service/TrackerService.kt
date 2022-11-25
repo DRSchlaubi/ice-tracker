@@ -3,9 +3,7 @@ package dev.schlaubi.icetracker.service
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.LiveData
@@ -29,7 +27,7 @@ import kotlin.io.path.div
 
 const val TRACKER_SERVICE_ID = "dev.schlaubi.icetracker.service.TRACKER_SERVICE"
 const val NOTIFICATION_ID = 1
-const val TRACKER_SERVICE_NAME = "ICE Tracker Notification Communication Channel"
+const val TRACKER_SERVICE_NAME = "Tracker Status"
 const val TRACKER_SERVICE_REQUEST_CODE = 1
 const val TRACKER_INITIAL_DATA_EXTRA = "initial_data"
 
@@ -40,8 +38,6 @@ class TrackerService : LifecycleService() {
         setupNotification()
     }
 
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val safeIntent = intent ?: return super.onStartCommand(null, flags, startId)
         val action = enumValues<Command>().firstOrNull { it.name == safeIntent.action }
@@ -85,7 +81,9 @@ class TrackerService : LifecycleService() {
                     ?: error("Missing initial data")
                 task.start()
                 val state = TrackingServiceState.Running(false, initialData, task, tempFile)
-                startForeground(NOTIFICATION_ID, state.toNotification())
+                val notificationManager =
+                    getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                startForeground(NOTIFICATION_ID, state.toNotification(notificationManager))
                 _state.postValue(state)
             }
         }
@@ -102,24 +100,23 @@ class TrackerService : LifecycleService() {
     private fun setupNotification() {
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        _state.observe(this) {
+            if (it is TrackingServiceState.Running) {
+                notificationManager.notify(
+                    NOTIFICATION_ID,
+                    it.toNotification(notificationManager)
+                )
+            }
+        }
+    }
+
+    private fun TrackingServiceState.Running.toNotification(notificationManager: NotificationManager): Notification {
         val channel = NotificationChannel(
             TRACKER_SERVICE_ID,
             TRACKER_SERVICE_NAME,
             NotificationManager.IMPORTANCE_HIGH
         )
         notificationManager.createNotificationChannel(channel)
-
-        _state.observe(this) {
-            if (it is TrackingServiceState.Running) {
-                notificationManager.notify(
-                    NOTIFICATION_ID,
-                    it.toNotification()
-                )
-            }
-        }
-    }
-
-    private fun TrackingServiceState.Running.toNotification(): Notification {
         return NotificationCompat.Builder(this@TrackerService, TRACKER_SERVICE_ID)
             .setOngoing(true)
             .setAutoCancel(false)

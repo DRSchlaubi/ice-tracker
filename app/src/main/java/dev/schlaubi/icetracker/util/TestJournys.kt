@@ -1,4 +1,4 @@
-package dev.schlaubi.icetracker
+package dev.schlaubi.icetracker.util
 
 import dev.schlaubi.icetracker.fetcher.Journey
 import kotlinx.serialization.decodeFromString

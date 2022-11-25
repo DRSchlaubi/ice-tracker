@@ -38,7 +38,11 @@ private fun TrackerView(
     startedFromMainScreen: Boolean
 ) {
     var paused by remember { mutableStateOf(false) }
+    var waitForPauseUpdate by remember { mutableStateOf(false) }
+    var expectedPauseState by remember { mutableStateOf(paused) }
+
     val state by TrackerService.state.observeAsState(initial = TrackerService.state.value!!)
+
 
     Scaffold(
         topBar = {
@@ -71,11 +75,22 @@ private fun TrackerView(
             if (currentState is TrackingServiceState.Sleeping) {
                 StartingTracker(activity)
             } else if (currentState is TrackingServiceState.Running) {
+                if (!waitForPauseUpdate) {
+                    if(expectedPauseState != currentState.paused) {
+                        expectedPauseState = currentState.paused
+                        paused = currentState.paused
+                    }
+                } else if(expectedPauseState == currentState.paused) {
+                    waitForPauseUpdate = false
+                }
+
                 TrackingTrackerContent(
                     state = currentState.data,
                     paused = paused,
                     onPause = {
                         paused = true
+                        waitForPauseUpdate = true
+                        expectedPauseState = true
                         activity.startForegroundService(
                             TrackerService.commandIntent(
                                 activity,
@@ -94,6 +109,8 @@ private fun TrackerView(
                     },
                     onResume = {
                         paused = false
+                        waitForPauseUpdate = true
+                        expectedPauseState = false
                         activity.startForegroundService(
                             TrackerService.commandIntent(
                                 activity,
@@ -101,7 +118,7 @@ private fun TrackerView(
                             )
                         )
                     },
-                    waitingForServiceUpdate = paused != (state as? TrackingServiceState.Running)?.paused
+                    waitingForServiceUpdate = waitForPauseUpdate
                 )
             } else if (currentState is TrackingServiceState.Stopping) {
                 activity.finish()

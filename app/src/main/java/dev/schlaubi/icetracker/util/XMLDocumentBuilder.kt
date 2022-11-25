@@ -1,4 +1,4 @@
-package dev.schlaubi.icetracker
+package dev.schlaubi.icetracker.util
 
 import io.jenetics.jpx.XMLProvider
 import javax.xml.parsers.DocumentBuilderFactory
