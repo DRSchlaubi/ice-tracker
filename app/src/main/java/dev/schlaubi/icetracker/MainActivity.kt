@@ -27,6 +27,7 @@ import dev.schlaubi.icetracker.service.TrackerService
 import dev.schlaubi.icetracker.service.TrackingServiceState
 import dev.schlaubi.icetracker.ui.journey.JourneyList
 import dev.schlaubi.icetracker.ui.theme.ICETrackerTheme
+import dev.schlaubi.icetracker.ui.tracker.STARTED_FROM_MAIN_SCREEN
 import dev.schlaubi.icetracker.ui.tracker.TrackerActivity
 import kotlinx.datetime.*
 
@@ -129,7 +130,9 @@ private fun Context.startTracker() {
         Intent(
             this,
             TrackerActivity::class.java
-        )
+        ).apply {
+            putExtra(STARTED_FROM_MAIN_SCREEN, true)
+        }
     )
 }
 

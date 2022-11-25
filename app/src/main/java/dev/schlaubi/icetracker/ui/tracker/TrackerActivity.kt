@@ -25,7 +25,7 @@ class TrackerActivity : ComponentActivity() {
 
         setContent {
             ICETrackerTheme {
-                TrackerView(this, intent.getBooleanExtra(STARTED_FROM_MAIN_SCREEN, true))
+                TrackerView(this, intent.getBooleanExtra(STARTED_FROM_MAIN_SCREEN, false))
             }
         }
     }
