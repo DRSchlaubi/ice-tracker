@@ -1,15 +1,13 @@
-package dev.schlaubi.icetracker.ui
+package dev.schlaubi.icetracker.ui.journey
 
 import android.content.Context
 import android.content.Intent
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -17,11 +15,7 @@ import androidx.core.content.FileProvider
 import dev.schlaubi.icetracker.R
 import dev.schlaubi.icetracker.fetcher.Journey
 import dev.schlaubi.icetracker.fetcher.toGPX
-import dev.schlaubi.icetracker.ui.journey.DeleteJourneyDialog
-import dev.schlaubi.icetracker.ui.journey.RenameJourneyDialog
 import io.jenetics.jpx.GPX
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
@@ -32,7 +26,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import kotlin.io.path.deleteIfExists
 import kotlin.io.path.outputStream
 
 
@@ -137,18 +130,6 @@ private fun JourneyDropDown(
     }
 }
 
-@Composable
-private fun JourneyDetail(icon: ImageVector, @StringRes description: Int, text: String) {
-    Row(Modifier.padding(horizontal = 3.dp)) {
-        Icon(
-            imageVector = icon, contentDescription = stringResource(
-                id = description
-            )
-        )
-        Spacer(modifier = Modifier.padding(horizontal = 3.dp))
-        Text(text)
-    }
-}
 
 private fun Context.convertToGpx(journey: Journey) {
     val gpx = journey.toGPX(includeExtensions = false)

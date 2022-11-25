@@ -24,7 +24,7 @@ public class ICEPortalClient(public val url: Url = Url("https://iceportal.de")) 
         install(Resources)
         defaultRequest {
             url {
-                takeFrom(url)
+                takeFrom(this@ICEPortalClient.url)
                 appendPathSegments(url.pathSegments.filterNot(String::isBlank))
             }
         }

@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'kotlinx-serialization'
     id 'com.google.android.gms.oss-licenses-plugin'
 }
 
@@ -25,6 +26,12 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            buildConfigField  "String", "ICE_PORTAL_URL", '"https://iceportal.de"'
+        }
+
+        debug {
+            buildConfigField  "String", "ICE_PORTAL_URL", '"https://f8d8-46-82-241-220.eu.ngrok.io/"'
         }
     }
     compileOptions {
@@ -51,10 +58,12 @@ dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.lifecycle)
     implementation(libs.androidx.activity)
+    implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.icons)
     implementation(libs.androidx.compose.ui.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.lifecycle.service)
     implementation(projects.icePortalFetcher)
     implementation(libs.stax)
     implementation(libs.google.oss.licenses)

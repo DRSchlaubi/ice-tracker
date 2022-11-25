@@ -1,9 +1,11 @@
 <resources>
     <string name="app_name" translatable="false">ICETracker</string>
+    <string name="tracker_title" translatable="false">ICETracker - Tracker</string>
     <string name="add_journey">Add journey</string>
     <string name="building_series">Building Series</string>
     <string name="manage_journey">Manage journey</string>
     <string name="train_line">Train line</string>
+    <string name="tzn">Tzn</string>
     <string name="journey_date">Journey Date</string>
     <string name="convert_to_gpx">Convert Journey to GPX</string>
     <string name="options">Options</string>
@@ -18,4 +20,16 @@
     <string name="rename_journey_description">Please enter the new name for \"%1$s\"</string>
     <string name="new_name">New name</string>
     <string name="open_source_licenses">Open Source Licenses</string>
+    <string name="close">Close</string>
+    <string name="back">Go Back</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="stop_and_save">Stop and Save</string>
+    <string name="next_stop">Next Stop</string>
+    <string name="last_stop">Last Stop</string>
+    <string name="current_velocity">Current Velocity</string>
+    <string name="tracking_notification_title">Tracking …</string>
+    <string name="tracking_notification_description">Current Speed: %1$s km/h</string>
+    <string name="could_not_connect_to_fis">Could not connect to FIS: %1$s</string>
+    <string name="tracker_settings">Tracker settings</string>
 </resources>

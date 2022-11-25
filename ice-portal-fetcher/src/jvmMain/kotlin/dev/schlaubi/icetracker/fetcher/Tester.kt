@@ -2,6 +2,7 @@ package dev.schlaubi.icetracker.fetcher
 
 import dev.schlaubi.icetracker.client.ICEPortalClient
 import io.ktor.http.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
@@ -18,7 +19,7 @@ public fun main() {
     val task = FetchingTask(
         interval = 2.seconds,
         client = ICEPortalClient(Url("http://localhost:80")),
-        dispatcher = Dispatchers.IO
+        scope = CoroutineScope(Dispatchers.IO)
     )
     LOG.info { "Task started" }
     task.start()

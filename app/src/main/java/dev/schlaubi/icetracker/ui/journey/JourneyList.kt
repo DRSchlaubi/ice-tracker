@@ -1,4 +1,4 @@
-package dev.schlaubi.icetracker.ui
+package dev.schlaubi.icetracker.ui.journey
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -6,6 +6,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -13,6 +14,8 @@ import androidx.compose.ui.unit.dp
 import dev.schlaubi.icetracker.R
 import dev.schlaubi.icetracker.defaultJourneys
 import dev.schlaubi.icetracker.fetcher.Journey
+import dev.schlaubi.icetracker.service.TrackerService
+import dev.schlaubi.icetracker.service.TrackingServiceState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -35,6 +38,7 @@ fun JourneyList() {
     val coroutineScope = rememberCoroutineScope()
     var loading by remember { mutableStateOf(true) }
     var journeys by remember { mutableStateOf(emptyList<SavedJourney>()) }
+    val trackerState by TrackerService.state.observeAsState()
 
     fun removeJourney(id: String) {
         journeys = journeys.filter { it.journey.id != id }
@@ -49,6 +53,11 @@ fun JourneyList() {
         }
     }
 
+
+    val currentTrackerState = trackerState
+    if (currentTrackerState is TrackingServiceState.Stopping) {
+        addJourney(currentTrackerState.data)
+    }
 
     if (loading) {
         DisposableEffect(Unit) {

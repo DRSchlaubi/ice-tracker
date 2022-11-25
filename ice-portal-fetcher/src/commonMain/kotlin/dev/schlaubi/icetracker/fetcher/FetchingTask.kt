@@ -8,7 +8,6 @@ import io.ktor.util.*
 import kotlinx.coroutines.*
 import kotlinx.datetime.Clock
 import mu.KotlinLogging
-import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -17,11 +16,9 @@ private val LOG = KotlinLogging.logger { }
 public class FetchingTask(
     private val interval: Duration = 10.seconds,
     private val client: ICEPortalClient = ICEPortalClient(),
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
-) : CoroutineScope {
-    override val coroutineContext: CoroutineContext
-        get() = dispatcher + Job()
-
+    private val scope: CoroutineScope,
+    private val onUpdate: (status: TrainStatus, trip: TripInfo) -> Unit = { _, _ -> }
+) {
     private val createdAt = Clock.System.now()
     private var lastTripInfo: TripInfo? = null
     private var lastStatus: TrainStatus? = null
@@ -29,17 +26,17 @@ public class FetchingTask(
     private var currentSegments = mutableListOf<Journey.GeoSegment>()
     private var tracks = mutableListOf<Journey.GeoTrack>()
 
-    private lateinit var job: Job
+    private var job: Job? = null
 
     public fun start() {
-        if (::job.isInitialized) error("Already running!")
-        job = launch {
-            run()
+        if (job != null) error("Already running!")
+        job = scope.launch {
+            run(this)
         }
     }
 
-    private suspend fun run() {
-        if (isActive) {
+    private suspend fun run(scope: CoroutineScope) {
+        if (scope.isActive) {
             try {
                 fetchCurrentStatus()
             } catch (e: Exception) {
@@ -48,20 +45,27 @@ public class FetchingTask(
             }
             LOG.trace { "Next fetch in $interval" }
             delay(interval)
-            run()
+            run(scope)
         }
     }
 
+    public fun pause() {
+        requireNotNull(job) { "Not running" }
+        commitSegment()
+        job!!.cancel()
+        job = null
+    }
+
     public fun stopAndSave(): Journey {
-        job.cancel()
+        pause()
         commitTrack()
         val latestTripInfo = lastTripInfo ?: error("No data available")
         val latestStatus = lastStatus ?: error("No data available")
 
         return Journey(
             latestTripInfo.trip.number,
-            latestTripInfo.trip.number,
             generateNonce(),
+            latestTripInfo.trip.number,
             Journey.TrainInfo(
                 latestStatus.trainType,
                 latestStatus.series,
@@ -78,6 +82,7 @@ public class FetchingTask(
         LOG.trace { "Fetched train status: $currentStatus" }
         val currentTripInfo = client.getTripInfo()
         LOG.trace { "Fetched trip info: $currentTripInfo" }
+        onUpdate(currentStatus, currentTripInfo)
 
         if (lastTripInfo?.trip?.stopInfo?.actualNext != currentTripInfo.trip.stopInfo.actualNext) {
             LOG.info { "Station changed! adding new track" }

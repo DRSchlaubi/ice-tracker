@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -11,12 +15,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ICETracker"
         tools:targetApi="31">
+
+        <service
+            android:name=".service.TrackerService"
+            android:enabled="true"
+            android:foregroundServiceType="dataSync" />
         <activity
             android:name="com.google.android.gms.oss.licenses.OssLicensesMenuActivity"
             android:theme="@style/Theme.AppCompat.DayNight" />
         <activity
             android:name="com.google.android.gms.oss.licenses.OssLicensesActivity"
             android:theme="@style/Theme.AppCompat.DayNight" />
+        <activity
+            android:name=".ui.tracker.TrackerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.ICETracker" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -29,8 +42,8 @@
         </activity>
 
         <provider
-            android:authorities="${applicationId}.provider"
             android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

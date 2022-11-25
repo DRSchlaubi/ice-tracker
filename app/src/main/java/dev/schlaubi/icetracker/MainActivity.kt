@@ -9,30 +9,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
-import dev.schlaubi.icetracker.fetcher.Journey
-import dev.schlaubi.icetracker.ui.JourneyList
+import dev.schlaubi.icetracker.service.TrackerService
+import dev.schlaubi.icetracker.service.TrackingServiceState
+import dev.schlaubi.icetracker.ui.journey.JourneyList
 import dev.schlaubi.icetracker.ui.theme.ICETrackerTheme
+import dev.schlaubi.icetracker.ui.tracker.TrackerActivity
 import kotlinx.datetime.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        System.setProperty(
-            "android.javax.xml.stream.XMLInputFactory",
-            "com.sun.xml.stream.ZephyrParserFactory"
-        );
-        System.setProperty(
-            "android.javax.xml.stream.XMLOutputFactory",
-            "com.sun.xml.stream.ZephyrWriterFactory"
-        );
-        System.setProperty(
-            "android.javax.xml.stream.XMLEventFactory",
-            "com.sun.xml.stream.events.ZephyrEventFactory"
-        );
         setContent {
             ICETrackerTheme {
                 App()
@@ -41,16 +32,11 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-data class DummyJourney(
-    val name: String,
-    val number: String,
-    val trainInfo: Journey.TrainInfo,
-    val date: Instant
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun App() {
+    val context = LocalContext.current
+    val trackerState by TrackerService.state.observeAsState()
     Scaffold(topBar = {
         TopAppBar({ Text(text = stringResource(R.string.app_name)) },
             colors = TopAppBarDefaults.topAppBarColors(
@@ -59,8 +45,23 @@ fun App() {
                 actionIconContentColor = MaterialTheme.colorScheme.surface,
             ),
             actions = {
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(imageVector = Icons.Filled.Add, stringResource(R.string.add_journey))
+                IconButton(onClick = {
+                    if (trackerState is TrackingServiceState.Stopping) {
+                        TrackerService.reset()
+                    }
+                    context.startActivity(
+                        Intent(
+                            context,
+                            TrackerActivity::class.java
+                        )
+                    )
+                }) {
+                    val (icon, description) = if (trackerState is TrackingServiceState.Running) {
+                        Icons.Filled.Info to stringResource(R.string.tracker_settings)
+                    } else {
+                        Icons.Filled.Add to stringResource(R.string.add_journey)
+                    }
+                    Icon(icon, description)
                 }
                 ActionDropDown()
             }
