@@ -57,7 +57,7 @@ public class FetchingTask(
     }
 
     public fun stopAndSave(): Journey {
-        pause()
+        commitSegment()
         commitTrack()
         val latestTripInfo = lastTripInfo ?: error("No data available")
         val latestStatus = lastStatus ?: error("No data available")
