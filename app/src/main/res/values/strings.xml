@@ -13,7 +13,7 @@
     <string name="abort">Abort</string>
     <string name="delete">Delete</string>
     <string name="delete_title">Delete journey</string>
-    <string name="delete_description">Are you sure you want to delete \"%1$s\". This action cannot be undone</string>
+    <string name="delete_description">Are you sure you want to delete \"%1$s\"? This action cannot be undone</string>
     <string name="add_default_journey">Add default Journey</string>
     <string name="rename_journey">Rename</string>
     <string name="rename_journey_title">Rename Journey</string>
