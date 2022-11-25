@@ -6,11 +6,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import dev.schlaubi.icetracker.R
 import dev.schlaubi.icetracker.defaultJourneys
 import dev.schlaubi.icetracker.fetcher.Journey
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +21,6 @@ import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
 import java.nio.file.Path
 import kotlin.io.path.*
-import dev.schlaubi.icetracker.R
 
 private data class SavedJourney(
     val journey: Journey,
@@ -32,7 +31,7 @@ private data class SavedJourney(
 @OptIn(ExperimentalSerializationApi::class)
 @Composable
 fun JourneyList() {
-    val journeyDirectory = LocalContext.current.dataDir.toPath() / "journeys"
+    val journeyDirectory = LocalContext.current.filesDir.toPath() / "journeys"
     val coroutineScope = rememberCoroutineScope()
     var loading by remember { mutableStateOf(true) }
     var journeys by remember { mutableStateOf(emptyList<SavedJourney>()) }
