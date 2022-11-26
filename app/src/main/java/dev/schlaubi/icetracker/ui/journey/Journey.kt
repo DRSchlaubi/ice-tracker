@@ -52,7 +52,7 @@ fun JourneyCard(journey: Journey, file: Path, deleteFromList: (id: String) -> Un
                 .fillMaxWidth()
                 .wrapContentHeight()
         ) {
-            Column {
+            Column(Modifier.padding(top = 3.dp, bottom = 10.dp)) {
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
@@ -60,7 +60,9 @@ fun JourneyCard(journey: Journey, file: Path, deleteFromList: (id: String) -> Un
                     Text(
                         name,
                         style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.padding(5.dp).fillMaxWidth(fraction = .9f)
+                        modifier = Modifier
+                            .padding(horizontal = 10.dp, vertical = 7.dp)
+                            .fillMaxWidth(fraction = .9f)
                     )
                     Spacer(Modifier.weight(1f))
                     JourneyDropDown(journey, deleteAlertPresent, renameDialogPresent)

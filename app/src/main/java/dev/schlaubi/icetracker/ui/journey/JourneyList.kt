@@ -80,7 +80,7 @@ fun JourneyList() {
     } else {
         Column(
             Modifier
-                .padding(vertical = 15.dp, horizontal = 5.dp)
+                .padding(vertical = 15.dp, horizontal = 10.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             journeys.forEach { (journey, file) ->
