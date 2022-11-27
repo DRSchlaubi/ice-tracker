@@ -63,8 +63,10 @@ public fun Journey.toGPX(includeExtensions: Boolean = true): GPX {
                                     }
                                     .build()
 
-                                route.addPoint(point)
-                                segment.addPoint(point)
+                                if (pointData.gpsState == "VALID") {
+                                    route.addPoint(point)
+                                    segment.addPoint(point)
+                                }
                             }
                         }
                     }
