@@ -103,7 +103,7 @@ fun main() {
                         0, 0,
                         vehicle.series,
                         Clock.System.now(),
-                        Random.nextInt(vehicle.maxSpeed),
+                        Random.nextInt(vehicle.maxSpeed).toDouble(),
                         vehicle.trainType,
                         vehicle.tzn,
                         TrainStatus.WagonClass.FIRST,
