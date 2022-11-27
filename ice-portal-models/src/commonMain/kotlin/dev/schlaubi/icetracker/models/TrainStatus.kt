@@ -1,6 +1,7 @@
 package dev.schlaubi.icetracker.models
 
 import kotlinx.serialization.Serializable
+import kotlinx.datetime.Instant
 
 @Serializable
 public data class TrainStatus(
@@ -13,19 +14,20 @@ public data class TrainStatus(
     val tileY: Int,
     val tileX: Int,
     val series: String,
-    val serverTime: UnixTimestamp,
-    val speed: Int,
+    @Serializable(with = UnixTimestampSerializer::class)
+    val serverTime: Instant,
+    val speed: Double,
     val trainType: String,
     val tzn: String,
-    val wagonClass: WagonClass,
-    val connectivity: Connectivity,
+    val wagonClass: WagonClass =WagonClass.FIRST,
+    val connectivity: Connectivity? = null,
     val bapInstalled: Boolean
 ) {
     @Serializable
     public data class Connectivity(
-        val currentState: String,
-        val nextState: String,
-        val remainingSeconds: Int
+        val currentState: String? = null,
+        val nextState: String? = null,
+        val remainingSeconds: Int? = null
     )
 
     @Serializable
