@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -14,11 +15,13 @@ import androidx.compose.ui.unit.dp
 import dev.schlaubi.icetracker.R
 import dev.schlaubi.icetracker.util.defaultJourneys
 import dev.schlaubi.icetracker.fetcher.Journey
+import dev.schlaubi.icetracker.fetcher.fixUp
 import dev.schlaubi.icetracker.service.TrackerService
 import dev.schlaubi.icetracker.service.TrackingServiceState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
@@ -66,16 +69,23 @@ fun JourneyList() {
                     journeyDirectory.createDirectories()
                 }
                 val files = journeyDirectory.listDirectoryEntries("*.journey.json")
-                journeys = files.mapNotNull {
+                journeys = files.flatMap {
                     runCatching {
-                        val journey = Json.decodeFromStream<Journey>(it.inputStream())
-
-                        SavedJourney(journey, it)
-                    }.getOrNull()
+                        it.fixJourneyIfNeeded()
+                    }.getOrNull() ?: emptyList()
                 }
                 loading = false
             }
             onDispose { }
+        }
+
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(7.dp)
+        ) {
+            CircularProgressIndicator()
         }
     } else {
         Column(
@@ -93,6 +103,26 @@ fun JourneyList() {
         }
     }
 }
+
+@OptIn(ExperimentalSerializationApi::class)
+private fun Path.fixJourneyIfNeeded(): List<SavedJourney> {
+    val roundOne = Json.decodeFromStream<Journey>(inputStream())
+    return if (roundOne.version == 1) {
+        val backup = roundOne.copy(name = "${roundOne.name} - Backup", version = 2)
+        val fixed = roundOne.fixUp().copy(version = 2)
+        writeText(Json.encodeToString(fixed))
+        val backupFile = parent / "journey_${roundOne.id}.bak.journey.json"
+        backupFile.writeText(Json.encodeToString(backup))
+
+        return listOf(
+            SavedJourney(backup, backupFile),
+            SavedJourney(fixed, this)
+        )
+    } else {
+        listOf(SavedJourney(roundOne, this))
+    }
+}
+
 
 @Composable
 private fun AddDefaultJourneyButton(addJourney: (journey: Journey) -> Unit) {

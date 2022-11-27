@@ -4,16 +4,28 @@ import dev.schlaubi.icetracker.models.Trip
 import kotlinx.serialization.Serializable
 import kotlinx.datetime.Instant
 
+@Suppress("DataClassPrivateConstructor") // only used for serialization
 @Serializable
-public data class Journey(
+public data class Journey private constructor(
+    val version: Int = 1,
     val name: String,
     val id: String,
     val number: String,
     val trainInfo: TrainInfo,
     val stations: List<Trip.Station>,
     val createdAt: Instant,
-    val tracks: List<GeoTrack>,
+    val tracks: List<GeoTrack>
 ) {
+    public constructor(
+        name: String,
+        id: String,
+        number: String,
+        trainInfo: TrainInfo,
+        stations: List<Trip.Station>,
+        createdAt: Instant,
+        tracks: List<GeoTrack>
+    ) : this(2, name, id, number, trainInfo, stations, createdAt, tracks)
+
     @Serializable
     public data class TrainInfo(
         val type: String,
