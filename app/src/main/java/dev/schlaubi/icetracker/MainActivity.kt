@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -23,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
+import dev.schlaubi.icetracker.fetcher.Journey
 import dev.schlaubi.icetracker.service.TrackerService
 import dev.schlaubi.icetracker.service.TrackingServiceState
 import dev.schlaubi.icetracker.ui.journey.JourneyList
@@ -30,6 +32,10 @@ import dev.schlaubi.icetracker.ui.theme.ICETrackerTheme
 import dev.schlaubi.icetracker.ui.tracker.STARTED_FROM_MAIN_SCREEN
 import dev.schlaubi.icetracker.ui.tracker.TrackerActivity
 import kotlinx.datetime.*
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import java.nio.file.StandardOpenOption
+import kotlin.io.path.*
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -140,6 +146,23 @@ private fun Context.startTracker() {
 private fun ActionDropDown() {
     var expanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val fileRequester = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
+        val uri = it ?: return@rememberLauncherForActivityResult
+        context.contentResolver.openInputStream(uri)!!.use { stream ->
+            val bytes = stream.readBytes()
+            val parsed = Json.decodeFromString<Journey>(bytes.toString(Charsets.UTF_8))
+
+            val file = context.filesDir.toPath() / "journeys" / "journey_${parsed.id}.journey.json"
+            if (!file.parent.exists()) {
+                file.parent.createDirectories()
+            }
+            file.writeBytes(bytes, StandardOpenOption.CREATE)
+
+        }
+
+        Toast.makeText(context, "Will be available after Restart", Toast.LENGTH_SHORT).show()
+    }
+
     IconButton(onClick = { expanded = true }) {
         Icon(
             imageVector = Icons.Filled.MoreVert,
@@ -148,6 +171,7 @@ private fun ActionDropDown() {
     }
     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
         DropdownMenuItem(text = { Text(stringResource(R.string.import_item)) }, onClick = {
+            fileRequester.launch("application/json")
             expanded = false
         })
 

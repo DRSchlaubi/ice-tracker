@@ -28,7 +28,7 @@ import kotlinx.serialization.json.encodeToStream
 import java.nio.file.Path
 import kotlin.io.path.*
 
-private data class SavedJourney(
+data class SavedJourney(
     val journey: Journey,
     val file: Path
 )

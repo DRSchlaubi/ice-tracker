@@ -2,6 +2,7 @@ package dev.schlaubi.icetracker.ui.journey
 
 import android.content.Context
 import android.content.Intent
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -16,6 +17,9 @@ import dev.schlaubi.icetracker.R
 import dev.schlaubi.icetracker.fetcher.Journey
 import dev.schlaubi.icetracker.fetcher.toGPX
 import io.jenetics.jpx.GPX
+import io.ktor.util.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
@@ -26,6 +30,8 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import kotlin.io.path.copyTo
+import kotlin.io.path.div
 import kotlin.io.path.outputStream
 
 
@@ -65,7 +71,7 @@ fun JourneyCard(journey: Journey, file: Path, deleteFromList: (id: String) -> Un
                             .fillMaxWidth(fraction = .9f)
                     )
                     Spacer(Modifier.weight(1f))
-                    JourneyDropDown(journey, deleteAlertPresent, renameDialogPresent)
+                    JourneyDropDown(journey, file, deleteAlertPresent, renameDialogPresent)
                 }
                 Row(
                     horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()
@@ -101,11 +107,13 @@ fun JourneyCard(journey: Journey, file: Path, deleteFromList: (id: String) -> Un
 @Composable
 private fun JourneyDropDown(
     journey: Journey,
+    file: Path,
     deleteAlertPresent: MutableState<Boolean>,
     renameDialogPresent: MutableState<Boolean>
 ) {
     var modifyExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     Column {
         IconButton(onClick = { modifyExpanded = true }) {
@@ -116,17 +124,24 @@ private fun JourneyDropDown(
             )
         }
         DropdownMenu(expanded = modifyExpanded, onDismissRequest = { modifyExpanded = false }) {
-            DropdownMenuItem(text = { Text(text = "Rename") }, onClick = {
+            DropdownMenuItem(text = { Text(stringResource(R.string.rename)) }, onClick = {
                 modifyExpanded = false
                 renameDialogPresent.value = true
             })
-            DropdownMenuItem(text = { Text(text = "Delete") }, onClick = {
+            DropdownMenuItem(text = { Text(stringResource(R.string.delete)) }, onClick = {
                 modifyExpanded = false
                 deleteAlertPresent.value = true
             })
-            DropdownMenuItem(text = { Text(text = "Generate GPX") }, onClick = {
+            DropdownMenuItem(text = { Text(stringResource(R.string.convert_to_gpx)) }, onClick = {
                 modifyExpanded = false
                 context.convertToGpx(journey)
+            })
+            DropdownMenuItem(text = { Text(text = "Export") }, onClick = {
+                modifyExpanded = false
+                coroutineScope.launch(Dispatchers.IO) {
+                    val tempFileToShare = file.copyTo(context.cacheDir.toPath() / "journey_to_export_${generateNonce()}.journey.json")
+                    context.shareFile(tempFileToShare, R.string.export_journey, "application/json")
+                }
             })
         }
     }
@@ -137,10 +152,15 @@ private fun Context.convertToGpx(journey: Journey) {
     val gpx = journey.toGPX(includeExtensions = false)
     val tempFile = Files.createTempFile("journey_", ".gpx")
     GPX.write(gpx, tempFile)
+
+    shareFile(tempFile, R.string.convert_to_gpx, "application/gpx+xml")
+}
+
+private fun Context.shareFile(path: Path, @StringRes text: Int, type: String) {
     val shareIntent = Intent(Intent.ACTION_SEND).apply {
-        type = "application/gpx+xml"
+        this.type = type
         val file = FileProvider.getUriForFile(
-            this@convertToGpx, applicationContext.packageName + ".provider", tempFile.toFile()
+            this@shareFile, applicationContext.packageName + ".provider", path.toFile()
         )
 
         putExtra(Intent.EXTRA_STREAM, file)
@@ -148,5 +168,5 @@ private fun Context.convertToGpx(journey: Journey) {
     }
 
 
-    startActivity(Intent.createChooser(shareIntent, resources.getString(R.string.convert_to_gpx)))
+    startActivity(Intent.createChooser(shareIntent, resources.getString(text)))
 }
