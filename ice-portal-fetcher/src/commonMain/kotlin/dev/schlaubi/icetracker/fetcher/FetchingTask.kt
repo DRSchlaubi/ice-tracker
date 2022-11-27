@@ -89,11 +89,7 @@ public class FetchingTask(
             commitTrack()
         } else if (currentStatus.gpsStatus != lastStatus?.gpsStatus) {
             LOG.info { "GPS state changed adding new segment" }
-            if (currentGeoPoints.isEmpty()) {
-                LOG.debug { "Geo points are empty, skipping segment" }
-            } else {
-                currentSegments.add(Journey.GeoSegment(currentGeoPoints.toList()))
-            }
+            commitSegment()
         }
         lastTripInfo = currentTripInfo
         lastStatus = currentStatus
@@ -101,7 +97,7 @@ public class FetchingTask(
             currentStatus.latitude,
             currentStatus.longitude,
             currentStatus.serverTime,
-            currentStatus.speed,
+            currentStatus.speed.toInt(),
             currentStatus.internet,
             currentStatus.gpsStatus
         )
