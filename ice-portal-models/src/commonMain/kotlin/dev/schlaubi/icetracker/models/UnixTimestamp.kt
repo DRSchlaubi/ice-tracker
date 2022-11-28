@@ -20,5 +20,5 @@ public class UnixTimestampSerializer : KSerializer<Instant> {
     }
 
     override fun deserialize(decoder: Decoder): Instant =
-        Instant.fromEpochSeconds(decoder.decodeLong())
+        Instant.fromEpochMilliseconds(decoder.decodeLong())
 }

@@ -19,10 +19,14 @@ import dev.schlaubi.icetracker.ui.tracker.TrackerState
 import dev.schlaubi.icetracker.util.getParcelable
 import dev.schlaubi.icetracker.util.icePortalClient
 import io.ktor.util.*
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.io.path.div
+import kotlin.io.path.writeText
 
 
 const val TRACKER_SERVICE_ID = "dev.schlaubi.icetracker.service.TRACKER_SERVICE"
@@ -94,7 +98,13 @@ class TrackerService : LifecycleService() {
     private fun updateState(status: TrainStatus, tripInfo: TripInfo) {
         val state = _state.value!!
         state.requireRunning()
-        _state.postValue(state.copy(data = TrackerState(status, tripInfo.trip)))
+        val data = TrackerState(status, tripInfo.trip)
+        _state.postValue(state.copy(data = data))
+        state.tempFile.writeText(
+            Json.encodeToString(data),
+            Charsets.UTF_8,
+            StandardOpenOption.CREATE
+        )
     }
 
     private fun setupNotification() {

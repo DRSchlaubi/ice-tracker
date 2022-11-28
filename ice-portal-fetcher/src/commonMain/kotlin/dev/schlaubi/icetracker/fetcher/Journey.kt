@@ -24,7 +24,7 @@ public data class Journey private constructor(
         stations: List<Trip.Station>,
         createdAt: Instant,
         tracks: List<GeoTrack>
-    ) : this(2, name, id, number, trainInfo, stations, createdAt, tracks)
+    ) : this(3, name, id, number, trainInfo, stations, createdAt, tracks)
 
     @Serializable
     public data class TrainInfo(

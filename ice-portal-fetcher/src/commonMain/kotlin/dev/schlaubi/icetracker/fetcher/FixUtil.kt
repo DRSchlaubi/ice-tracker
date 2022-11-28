@@ -1,5 +1,8 @@
 package dev.schlaubi.icetracker.fetcher
 
+import kotlinx.datetime.Instant
+import dev.schlaubi.icetracker.models.UnixTimestamp
+
 /**
  * Fixes some issues with the previous [FetchingTask] implementation.
  * - Removes geo points that were also committed to previous segment
@@ -31,6 +34,26 @@ public fun Journey.fixUp(): Journey {
     }
 
     return copy(tracks = fixedTest1Tracks)
+}
+
+/**
+ * Fixes other issues with the previous [UnixTimestamp] implementation.
+ * - Converts milliseconds (interpreted as seconds) to valid milliseconds
+ */
+public fun Journey.fixUp2(): Journey {
+    val fixedTracks = tracks.map { track ->
+        val fixedSegments = track.segments.map { segment ->
+            val fixedPoints = segment.points.map { point ->
+                val milliseconds = point.timestamp.epochSeconds
+
+                point.copy(timestamp = Instant.fromEpochMilliseconds(milliseconds))
+            }
+
+            segment.copy(points = fixedPoints)
+        }
+        track.copy(segments = fixedSegments)
+    }
+    return copy(tracks = fixedTracks)
 }
 
 private fun <T> List<T>.splitByChangeIn(selector: (T) -> Any) = buildList {

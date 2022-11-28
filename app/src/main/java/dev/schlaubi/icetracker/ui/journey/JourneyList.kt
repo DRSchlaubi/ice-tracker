@@ -13,11 +13,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.schlaubi.icetracker.R
-import dev.schlaubi.icetracker.util.defaultJourneys
 import dev.schlaubi.icetracker.fetcher.Journey
 import dev.schlaubi.icetracker.fetcher.fixUp
+import dev.schlaubi.icetracker.fetcher.fixUp2
 import dev.schlaubi.icetracker.service.TrackerService
 import dev.schlaubi.icetracker.service.TrackingServiceState
+import dev.schlaubi.icetracker.util.defaultJourneys
+import io.ktor.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -107,19 +109,27 @@ fun JourneyList() {
 @OptIn(ExperimentalSerializationApi::class)
 private fun Path.fixJourneyIfNeeded(): List<SavedJourney> {
     val roundOne = Json.decodeFromStream<Journey>(inputStream())
-    return if (roundOne.version == 1) {
-        val backup = roundOne.copy(name = "${roundOne.name} - Backup", version = 2)
-        val fixed = roundOne.fixUp().copy(version = 2)
+    fun fix(newVersion: Int, fixer: Journey.() -> Journey): List<SavedJourney> {
+        val backupId = "${roundOne.id}-${generateNonce()}"
+        val backup =
+            roundOne.copy(name = "${roundOne.name} - Backup", version = newVersion, id = backupId)
+        val fixed = roundOne.fixer().copy(version = newVersion)
         writeText(Json.encodeToString(fixed))
-        val backupFile = parent / "journey_${roundOne.id}.bak.journey.json"
+        val backupFile = parent / "journey_$backupId.bak.journey.json"
         backupFile.writeText(Json.encodeToString(backup))
 
         return listOf(
             SavedJourney(backup, backupFile),
-            SavedJourney(fixed, this)
+            SavedJourney(fixed, this@fixJourneyIfNeeded)
         )
-    } else {
-        listOf(SavedJourney(roundOne, this))
+    }
+
+    return when (roundOne.version) {
+        1 -> fix(3) {
+            fixUp().fixUp2()
+        }
+        2 -> fix(3, Journey::fixUp2)
+        else -> listOf(SavedJourney(roundOne, this))
     }
 }
 
