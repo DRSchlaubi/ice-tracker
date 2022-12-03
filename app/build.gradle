@@ -13,8 +13,8 @@ android {
         applicationId "dev.schlaubi.icetracker"
         minSdk 26
         targetSdk 33
-        versionCode 5
-        versionName "1.1"
+        versionCode 6
+        versionName "1.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -31,7 +31,9 @@ android {
         }
 
         debug {
-            buildConfigField  "String", "ICE_PORTAL_URL", '"https://f8d8-46-82-241-220.eu.ngrok.io/"'
+            applicationIdSuffix ".dev"
+            versionNameSuffix '-DEBUG'
+            buildConfigField  "String", "ICE_PORTAL_URL", '"https://d1d5-46-82-241-220.eu.ngrok.io/"'
         }
     }
     compileOptions {

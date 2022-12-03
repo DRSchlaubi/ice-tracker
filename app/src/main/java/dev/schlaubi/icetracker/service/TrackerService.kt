@@ -25,7 +25,9 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
+import kotlin.io.path.createDirectories
 import kotlin.io.path.div
+import kotlin.io.path.exists
 import kotlin.io.path.writeText
 import kotlin.time.Duration.Companion.seconds
 
@@ -102,6 +104,10 @@ class TrackerService : LifecycleService() {
         state.requireRunning()
         val data = TrackerState(status, tripInfo.trip)
         _state.postValue(state.copy(data = data))
+        val parent = state.tempFile.parent
+        if (!parent.exists()) {
+            parent.createDirectories()
+        }
         state.tempFile.writeText(
             Json.encodeToString(data),
             Charsets.UTF_8,
@@ -126,7 +132,7 @@ class TrackerService : LifecycleService() {
         val channel = NotificationChannel(
             TRACKER_SERVICE_ID,
             TRACKER_SERVICE_NAME,
-            NotificationManager.IMPORTANCE_HIGH
+            NotificationManager.IMPORTANCE_LOW
         )
         notificationManager.createNotificationChannel(channel)
         return NotificationCompat.Builder(this@TrackerService, TRACKER_SERVICE_ID)

@@ -14,6 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.schlaubi.icetracker.R
 import dev.schlaubi.icetracker.fetcher.Journey
+import dev.schlaubi.icetracker.fetcher.cleanUp
 import dev.schlaubi.icetracker.fetcher.fixUp
 import dev.schlaubi.icetracker.fetcher.fixUp2
 import dev.schlaubi.icetracker.service.TrackerService
@@ -125,10 +126,13 @@ private fun Path.fixJourneyIfNeeded(): List<SavedJourney> {
     }
 
     return when (roundOne.version) {
-        1 -> fix(3) {
-            fixUp().fixUp2()
+        1 -> fix(Journey.CURRENT_VERSION) {
+            fixUp().fixUp2().cleanUp()
         }
-        2 -> fix(3, Journey::fixUp2)
+        2 -> fix(Journey.CURRENT_VERSION) {
+            fixUp2().cleanUp()
+        }
+        3 -> fix(Journey.CURRENT_VERSION, Journey::cleanUp)
         else -> listOf(SavedJourney(roundOne, this))
     }
 }

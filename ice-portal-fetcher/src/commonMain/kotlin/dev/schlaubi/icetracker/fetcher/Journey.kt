@@ -24,7 +24,7 @@ public data class Journey private constructor(
         stations: List<Trip.Station>,
         createdAt: Instant,
         tracks: List<GeoTrack>
-    ) : this(3, name, id, number, trainInfo, stations, createdAt, tracks)
+    ) : this(CURRENT_VERSION, name, id, number, trainInfo, stations, createdAt, tracks)
 
     @Serializable
     public data class TrainInfo(
@@ -54,5 +54,9 @@ public data class Journey private constructor(
             val wifiState: String,
             val gpsState: String
         )
+    }
+
+    public companion object {
+        public const val CURRENT_VERSION: Int = 4
     }
 }

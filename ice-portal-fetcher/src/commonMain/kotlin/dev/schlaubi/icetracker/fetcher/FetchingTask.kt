@@ -74,7 +74,7 @@ public class FetchingTask(
             latestTripInfo.trip.stops.map(Trip.Stop::station),
             createdAt,
             tracks
-        )
+        ).cleanUp()
     }
 
     private suspend fun fetchCurrentStatus() {
