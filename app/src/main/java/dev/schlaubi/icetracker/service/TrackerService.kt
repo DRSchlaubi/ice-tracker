@@ -27,6 +27,7 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.io.path.div
 import kotlin.io.path.writeText
+import kotlin.time.Duration.Companion.seconds
 
 
 const val TRACKER_SERVICE_ID = "dev.schlaubi.icetracker.service.TRACKER_SERVICE"
@@ -79,7 +80,8 @@ class TrackerService : LifecycleService() {
                 val task = FetchingTask(
                     scope = lifecycleScope,
                     client = icePortalClient,
-                    onUpdate = ::updateState
+                    onUpdate = ::updateState,
+                    interval = 2.seconds
                 )
                 val initialData = safeIntent.getParcelable<TrackerState>(TRACKER_INITIAL_DATA_EXTRA)
                     ?: error("Missing initial data")
