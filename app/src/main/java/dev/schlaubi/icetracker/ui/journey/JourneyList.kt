@@ -1,11 +1,12 @@
 package dev.schlaubi.icetracker.ui.journey
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -29,7 +30,9 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
 import java.nio.file.Path
+import java.util.stream.IntStream
 import kotlin.io.path.*
+import kotlin.streams.toList
 
 data class SavedJourney(
     val journey: Journey,
@@ -72,11 +75,15 @@ fun JourneyList() {
                     journeyDirectory.createDirectories()
                 }
                 val files = journeyDirectory.listDirectoryEntries("*.journey.json")
-                journeys = files.flatMap {
-                    runCatching {
-                        it.fixJourneyIfNeeded()
-                    }.getOrNull() ?: emptyList()
-                }
+                journeys = files
+                    .asSequence()
+                    .flatMap {
+                        runCatching {
+                            it.fixJourneyIfNeeded().asSequence()
+                        }.getOrNull() ?: emptySequence()
+                    }
+                    .sortedByDescending { it.journey.createdAt }
+                    .toList()
                 loading = false
             }
             onDispose { }
