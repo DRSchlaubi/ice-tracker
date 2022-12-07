@@ -13,7 +13,7 @@ android {
         applicationId "dev.schlaubi.icetracker"
         minSdk 26
         targetSdk 33
-        versionCode 7
+        versionCode 8
         versionName "1.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -33,7 +33,7 @@ android {
         debug {
             applicationIdSuffix ".dev"
             versionNameSuffix '-DEBUG'
-            buildConfigField  "String", "ICE_PORTAL_URL", '"https://d1d5-46-82-241-220.eu.ngrok.io/"'
+            buildConfigField  "String", "ICE_PORTAL_URL", '"https://6fa3-46-82-241-220.eu.ngrok.io/"'
         }
     }
     compileOptions {

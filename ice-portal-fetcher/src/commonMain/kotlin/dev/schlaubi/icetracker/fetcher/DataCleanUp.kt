@@ -13,7 +13,7 @@ private fun Journey.cleanUpDeadSegments(): Journey {
             it.segments.any { segment ->
                 segment.points.any { point ->
                     point.speed > 5
-                } && segment.points.size > 5
+                }
             }
         }
 
@@ -21,8 +21,8 @@ private fun Journey.cleanUpDeadSegments(): Journey {
 }
 
 private fun Journey.cleanUpStations(): Journey {
-    val firstStation = tracks.first().start
-    val lastStation = tracks.last().end
+    val firstStation = tracks.firstOrNull()?.start ?: return this
+    val lastStation = tracks.firstOrNull()?.end ?: return this
 
     val remainingStations = stations.subList(indexOfEva(firstStation), indexOfEva(lastStation) + 1)
 
