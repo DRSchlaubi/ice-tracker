@@ -40,4 +40,5 @@
     <string name="invalid_ssl_warning">Congratulations, you are probably sitting in an ICE 3! Since the Deutsche Bahn uses various weird SSL certificates in their ICEs, the certificate could not be validated correctly in this case. Do you still want to continue?</string>
     <string name="invalid_ssl_warning_title">Invalid SSL Warning</string>
     <string name="continue_anyways">Continue Anyways</string>
+    <string name="request_battery_permission">Allow background tasks</string>
 </resources>
