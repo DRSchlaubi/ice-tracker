@@ -35,4 +35,7 @@
     <string name="missing_notification_permission_title">Benachrichtigungsberechtigung erforderlich</string>
     <string name="missing_notification_permission_description">Bitte gib der App die Benachrichtigungsberechtigung, um den Tracker zu verwenden.</string>
     <string name="export_journey">Reise exportieren</string>
+    <string name="invalid_ssl_warning">Herzlichen Glückwunsch, wahrscheinlich sitzt du in einem ICE 3! Da die Deutsche Bahn in ihren ICEs verschiedenste komische SSL-Zertifikate verwendet, konnte in diesem Fall das Zertifikat nicht korrekt validiert werden. Möchtest du dennoch fortfahren?</string>
+    <string name="invalid_ssl_warning_title">Ungültiges SSL Zertifikat</string>
+    <string name="continue_anyways">Trotzdem fortfahren</string>
 </resources>

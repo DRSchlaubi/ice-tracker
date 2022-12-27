@@ -15,7 +15,7 @@ private val LOG = KotlinLogging.logger { }
 
 public class FetchingTask(
     private val interval: Duration = 10.seconds,
-    private val client: ICEPortalClient = ICEPortalClient(),
+    private val client: ICEPortalClient,
     private val scope: CoroutineScope,
     private val onUpdate: (status: TrainStatus, trip: TripInfo) -> Unit = { _, _ -> }
 ) {

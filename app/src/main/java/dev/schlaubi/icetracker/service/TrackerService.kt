@@ -18,6 +18,7 @@ import dev.schlaubi.icetracker.ui.tracker.TrackerActivity
 import dev.schlaubi.icetracker.ui.tracker.TrackerState
 import dev.schlaubi.icetracker.util.getParcelable
 import dev.schlaubi.icetracker.util.icePortalClient
+import dev.schlaubi.icetracker.util.sslIgnoringIcePortalClient
 import io.ktor.util.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -37,6 +38,7 @@ const val NOTIFICATION_ID = 1
 const val TRACKER_SERVICE_NAME = "Tracker Status"
 const val TRACKER_SERVICE_REQUEST_CODE = 1
 const val TRACKER_INITIAL_DATA_EXTRA = "initial_data"
+const val TRACKER_IGNORE_SSL_EXTRA = "ignore_ssl"
 
 class TrackerService : LifecycleService() {
 
@@ -81,7 +83,7 @@ class TrackerService : LifecycleService() {
                     cacheDir.toPath() / "current_ongoing_journeys" / "journey_${generateNonce()}.journey.json"
                 val task = FetchingTask(
                     scope = lifecycleScope,
-                    client = icePortalClient,
+                    client = if (intent.getBooleanExtra(TRACKER_IGNORE_SSL_EXTRA, false)) sslIgnoringIcePortalClient else icePortalClient,
                     onUpdate = ::updateState,
                     interval = 2.seconds
                 )

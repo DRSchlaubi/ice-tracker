@@ -119,11 +119,14 @@ private fun JourneyDialog(
                 }
             },
             dismissButton = {
-                Button(onClick = { present.value = false; onDismiss?.invoke() }, enabled = !loading) {
+                Button(
+                    onClick = { present.value = false; onDismiss?.invoke() },
+                    enabled = !loading
+                ) {
                     Text(stringResource(R.string.abort))
                 }
             },
-            icon = { Icons.Filled.DeleteForever },
+            icon = { Icon(Icons.Filled.DeleteForever, stringResource(R.string.delete_title)) },
             title = title,
             text = text
         )

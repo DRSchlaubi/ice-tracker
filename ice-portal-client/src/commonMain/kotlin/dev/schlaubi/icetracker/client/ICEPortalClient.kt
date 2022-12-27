@@ -5,6 +5,7 @@ import dev.schlaubi.icetracker.models.TripInfo
 import dev.schlaubi.icetracker.routes.ICEPortal
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.engine.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.resources.*
@@ -12,11 +13,14 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 
-public class ICEPortalClient(public val url: Url = Url("https://iceportal.de")) {
+public class ICEPortalClient(
+    public val url: Url = Url("https://iceportal.de"),
+    client: HttpClient = HttpClient()
+) {
     private val json = Json {
         ignoreUnknownKeys = true
     }
-    private val client = HttpClient {
+    private val client = client.config {
         install(ContentNegotiation) {
             json(json)
         }
